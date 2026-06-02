@@ -71,3 +71,18 @@ export const CATEGORIES = [
   "Investments",
   "Miscellaneous"
 ]
+
+export type Budget = {
+  category: string
+  limit: number
+}
+
+export function getBudgets(): Budget[] {
+  if (typeof window === "undefined") return []
+  const data = localStorage.getItem("finwise_budgets")
+  return data ? JSON.parse(data) : []
+}
+
+export function saveBudgets(budgets: Budget[]) {
+  localStorage.setItem("finwise_budgets", JSON.stringify(budgets))
+}
