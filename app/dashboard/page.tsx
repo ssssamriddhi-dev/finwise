@@ -193,7 +193,7 @@ export default function Dashboard() {
                   <h3 className="text-[#F5F7F7] text-sm font-medium mb-4">Spending by Category</h3>
                   <ResponsiveContainer width="100%" height={260}>
                     <PieChart>
-                      <Pie data={categoryData} cx="50%" cy="50%" outerRadius={100} dataKey="value" label={({name, percent}) => `${name} ${(percent*100).toFixed(0)}%`} labelLine={false} fontSize={11}>
+                      <Pie data={categoryData} cx="50%" cy="50%" outerRadius={100} dataKey="value" label={({name, percent}) => `${name} ${((percent ?? 0)*100).toFixed(0)}%`} labelLine={false} fontSize={11}>
                         {categoryData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                       </Pie>
                       <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ background: "#121A1C", border: "1px solid #1E2D30", borderRadius: "12px", color: "#F5F7F7" }} />
