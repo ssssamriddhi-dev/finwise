@@ -141,6 +141,7 @@ export default function Dashboard() {
           </div>
           <div className="flex items-center gap-4">
             <button onClick={() => window.location.href = "/news"} className="text-[#8C9A9E] text-xs hover:text-[#F5F7F7] transition-colors">📰 News</button>
+            <button onClick={() => window.location.href = "/report"} className="text-[#8C9A9E] text-xs hover:text-[#F5F7F7] transition-colors">📊 Report</button>
             <button onClick={() => { localStorage.clear(); window.location.href = "/" }} className="text-[#8C9A9E] text-xs hover:text-[#F5F7F7] transition-colors">Sign out</button>
           </div>
         </div>
