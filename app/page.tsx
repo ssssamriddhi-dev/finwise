@@ -15,7 +15,7 @@ export default function Home() {
           <p className="text-[#2D8F85] text-sm font-medium tracking-widest uppercase mb-3">Welcome back</p>
           <h1 className="text-[#F5F7F7] text-4xl font-semibold mb-8">Hey, {savedName} 👋</h1>
           <button
-            onClick={() => window.location.href = "/dashboard"}
+            onClick={() => window.location.href = "/onboarding"}
             className="bg-[#2D8F85] hover:bg-[#39A596] text-white px-8 py-3 rounded-xl text-sm font-medium transition-all duration-200"
           >
             Go to Dashboard
@@ -33,7 +33,7 @@ export default function Home() {
     if (name.trim().length < 2) return
     localStorage.setItem("finwise_name", name.trim())
     setSubmitted(true)
-    window.location.href = "/dashboard"
+    window.location.href = "/onboarding"
   }
 
   return (
