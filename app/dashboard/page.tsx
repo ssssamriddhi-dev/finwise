@@ -20,6 +20,7 @@ export default function Dashboard() {
   const [budgetForm, setBudgetForm] = useState({ category: "Food & Dining", limit: "" })
   const [goalForm, setGoalForm] = useState({ name: "", target: "", saved: "", emoji: "🎯" })
   const [addingTo, setAddingTo] = useState<string|null>(null)
+  const [search, setSearch] = useState("")
   const [addAmount, setAddAmount] = useState("")
 
   const [expForm, setExpForm] = useState({ amount: "", category: "Food & Dining", description: "", date: new Date().toISOString().split("T")[0] })
@@ -220,6 +221,15 @@ export default function Dashboard() {
             <div className="px-5 py-4 border-b border-[#1E2D30]">
               <h2 className="text-[#F5F7F7] text-sm font-medium">Transactions</h2>
             </div>
+            <div className="px-5 py-3 border-b border-[#1E2D30]">
+              <input
+                type="text"
+                placeholder="Search transactions..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="w-full bg-[#0B0F10] border border-[#1E2D30] text-[#F5F7F7] placeholder-[#8C9A9E] px-3 py-2 rounded-xl text-sm focus:outline-none focus:border-[#2D8F85]"
+              />
+            </div>
             {expenses.length === 0 && incomes.length === 0 ? (
               <div className="px-5 py-10 text-center">
                 <p className="text-[#8C9A9E] text-sm">No transactions yet.</p>
@@ -228,6 +238,7 @@ export default function Dashboard() {
               <div className="divide-y divide-[#1E2D30]">
                 {[...expenses.map(e => ({...e, type: "expense" as const})), ...incomes.map(i => ({...i, type: "income" as const, category: i.source, description: i.source}))]
                   .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                  .filter(t => search === "" || t.description.toLowerCase().includes(search.toLowerCase()) || t.category.toLowerCase().includes(search.toLowerCase()) || t.amount.toString().includes(search))
                   .map(t => (
                     <div key={t.id} className="px-5 py-3.5 flex items-center justify-between hover:bg-[#171F21] transition-colors">
                       <div className="flex items-center gap-3">
