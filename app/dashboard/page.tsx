@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Plus, Trash2, TrendingUp, TrendingDown, AlertTriangle, Target } from "lucide-react"
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis } from "recharts"
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, LineChart, Line, CartesianGrid } from "recharts"
 import { getExpenses, getIncomes, addExpense, addIncome, deleteExpense, deleteIncome, getBudgets, saveBudgets, getGoals, saveGoals, CATEGORIES, type Expense, type Income, type Budget, type Goal } from "@/lib/data"
 
 const COLORS = ["#2D8F85","#39A596","#4DB6AC","#80CBC4","#B2DFDB","#E0F2F1","#1B6B62","#0D4A43","#26A69A","#00897B"]
@@ -299,6 +299,38 @@ export default function Dashboard() {
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>
+                </div>
+
+                <div className="bg-[#121A1C] rounded-2xl border border-[#1E2D30] p-5">
+                  <h3 className="text-[#F5F7F7] text-sm font-medium mb-1">Daily Spending — {new Date().toLocaleString("en-IN", {month: "long", year: "numeric"})}</h3>
+                  <p className="text-[#8C9A9E] text-xs mb-4">How much you spent each day this month</p>
+                  {(() => {
+                    const now = new Date()
+                    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+                    const dailyData = Array.from({length: daysInMonth}, (_, i) => {
+                      const day = i + 1
+                      const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`
+                      const total = expenses.filter(e => e.date === dateStr).reduce((s,e) => s + e.amount, 0)
+                      return { day: String(day), amount: total }
+                    })
+                    const hasData = dailyData.some(d => d.amount > 0)
+                    if (!hasData) return (
+                      <div className="text-center py-8">
+                        <p className="text-[#8C9A9E] text-sm">No expenses this month yet.</p>
+                      </div>
+                    )
+                    return (
+                      <ResponsiveContainer width="100%" height={220}>
+                        <LineChart data={dailyData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#1E2D30" />
+                          <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: "#8C9A9E", fontSize: 10 }} interval={4} />
+                          <YAxis hide />
+                          <Tooltip formatter={(v: number) => fmt(v)} labelFormatter={(l) => `Day ${l}`} contentStyle={{ background: "#121A1C", border: "1px solid #1E2D30", borderRadius: "12px", color: "#F5F7F7" }} />
+                          <Line type="monotone" dataKey="amount" stroke="#2D8F85" strokeWidth={2} dot={{ fill: "#2D8F85", r: 3 }} activeDot={{ r: 5 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    )
+                  })()}
                 </div>
               </>
             )}
