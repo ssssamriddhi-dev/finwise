@@ -211,7 +211,7 @@ export default function Dashboard() {
         )}
 
         <div className="flex gap-2 mb-4 flex-wrap">
-          {(["transactions","charts","budget","goals"] as const).map(tab => (
+          {(["transactions","charts","budget","goals","score"] as const).map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all capitalize ${activeTab === tab ? "bg-[#2D8F85] text-white" : "bg-[#121A1C] text-[#8C9A9E] border border-[#1E2D30]"}`}>{tab}</button>
           ))}
         </div>
@@ -420,6 +420,90 @@ export default function Dashboard() {
             )}
           </div>
         )}
+
+      {activeTab === "score" && (() => {
+        const savingsScore = Math.min(savingsRate * 2, 40)
+        const budgetScore = budgets.length === 0 ? 0 : Math.round((budgets.filter(b => getSpentForCategory(b.category) <= b.limit).length / budgets.length) * 30)
+        const goalScore = goals.length === 0 ? 0 : Math.round((goals.filter(g => g.saved >= g.target * 0.2).length / goals.length) * 20)
+        const incomeScore = totalIncome > 0 ? 10 : 0
+        const total = Math.min(Math.round(savingsScore + budgetScore + goalScore + incomeScore), 100)
+        const label = total >= 80 ? "Excellent" : total >= 50 ? "Good" : "Needs Work"
+        const color = total >= 80 ? "#2D8F85" : total >= 50 ? "#f59e0b" : "#ef4444"
+        const ring = total >= 80 ? "text-[#2D8F85]" : total >= 50 ? "text-yellow-400" : "text-red-400"
+
+        return (
+          <div className="space-y-4">
+            <div className="bg-[#121A1C] rounded-2xl border border-[#1E2D30] p-6 text-center">
+              <p className="text-[#8C9A9E] text-xs uppercase tracking-widest mb-4">Financial Health Score</p>
+              <div className="relative inline-flex items-center justify-center mb-4">
+                <svg width="140" height="140" viewBox="0 0 140 140">
+                  <circle cx="70" cy="70" r="60" fill="none" stroke="#1E2D30" strokeWidth="10" />
+                  <circle cx="70" cy="70" r="60" fill="none" stroke={color} strokeWidth="10"
+                    strokeDasharray={`${(total / 100) * 376} 376`}
+                    strokeLinecap="round"
+                    transform="rotate(-90 70 70)"
+                    style={{transition: "stroke-dasharray 1s ease"}}
+                  />
+                </svg>
+                <div className="absolute text-center">
+                  <p className={`text-4xl font-bold ${ring}`}>{total}</p>
+                  <p className="text-[#8C9A9E] text-xs">/100</p>
+                </div>
+              </div>
+              <p className={`text-xl font-semibold mb-1 ${ring}`}>{label}</p>
+              <p className="text-[#8C9A9E] text-sm">Based on your savings, budget and goals</p>
+            </div>
+
+            <div className="bg-[#121A1C] rounded-2xl border border-[#1E2D30] p-5 space-y-4">
+              <h3 className="text-[#F5F7F7] text-sm font-medium">Score Breakdown</h3>
+
+              <div>
+                <div className="flex justify-between mb-1">
+                  <p className="text-[#8C9A9E] text-xs">Savings Rate (max 40)</p>
+                  <p className="text-[#F5F7F7] text-xs font-medium">{Math.round(savingsScore)}/40</p>
+                </div>
+                <div className="w-full bg-[#1E2D30] rounded-full h-1.5">
+                  <div className="h-1.5 rounded-full bg-[#2D8F85]" style={{width: `${(savingsScore/40)*100}%`}} />
+                </div>
+                <p className="text-[#8C9A9E] text-xs mt-1">Your savings rate is {savingsRate}%</p>
+              </div>
+
+              <div>
+                <div className="flex justify-between mb-1">
+                  <p className="text-[#8C9A9E] text-xs">Budget Discipline (max 30)</p>
+                  <p className="text-[#F5F7F7] text-xs font-medium">{budgetScore}/30</p>
+                </div>
+                <div className="w-full bg-[#1E2D30] rounded-full h-1.5">
+                  <div className="h-1.5 rounded-full bg-[#2D8F85]" style={{width: `${(budgetScore/30)*100}%`}} />
+                </div>
+                <p className="text-[#8C9A9E] text-xs mt-1">{budgets.length === 0 ? "Set budgets to earn points" : `${budgets.filter(b => getSpentForCategory(b.category) <= b.limit).length} of ${budgets.length} budgets on track`}</p>
+              </div>
+
+              <div>
+                <div className="flex justify-between mb-1">
+                  <p className="text-[#8C9A9E] text-xs">Goal Progress (max 20)</p>
+                  <p className="text-[#F5F7F7] text-xs font-medium">{goalScore}/20</p>
+                </div>
+                <div className="w-full bg-[#1E2D30] rounded-full h-1.5">
+                  <div className="h-1.5 rounded-full bg-[#2D8F85]" style={{width: `${(goalScore/20)*100}%`}} />
+                </div>
+                <p className="text-[#8C9A9E] text-xs mt-1">{goals.length === 0 ? "Create goals to earn points" : `${goals.filter(g => g.saved >= g.target * 0.2).length} of ${goals.length} goals have 20%+ saved`}</p>
+              </div>
+
+              <div>
+                <div className="flex justify-between mb-1">
+                  <p className="text-[#8C9A9E] text-xs">Income Tracked (max 10)</p>
+                  <p className="text-[#F5F7F7] text-xs font-medium">{incomeScore}/10</p>
+                </div>
+                <div className="w-full bg-[#1E2D30] rounded-full h-1.5">
+                  <div className="h-1.5 rounded-full bg-[#2D8F85]" style={{width: `${(incomeScore/10)*100}%`}} />
+                </div>
+                <p className="text-[#8C9A9E] text-xs mt-1">{totalIncome === 0 ? "Add income to earn points" : "Income is being tracked"}</p>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
 
       </div>
     </main>
