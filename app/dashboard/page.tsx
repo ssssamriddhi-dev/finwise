@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Plus, Trash2, TrendingUp, TrendingDown, AlertTriangle, Target } from "lucide-react"
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, LineChart, Line, CartesianGrid } from "recharts"
-import { getExpenses, getIncomes, addExpense, addIncome, deleteExpense, deleteIncome, getBudgets, saveBudgets, getGoals, saveGoals, CATEGORIES, type Expense, type Income, type Budget, type Goal } from "@/lib/data"
+import { getExpenses, getIncomes, addExpense, addIncome, deleteExpense, deleteIncome, getBudgets, saveBudgets, getGoals, saveGoals, getRecurring, saveRecurring, applyRecurringExpenses, CATEGORIES, type Expense, type Income, type Budget, type Goal, type RecurringExpense } from "@/lib/data"
 
 const COLORS = ["#2D8F85","#39A596","#4DB6AC","#80CBC4","#B2DFDB","#E0F2F1","#1B6B62","#0D4A43","#26A69A","#00897B"]
 const EMOJIS = ["🎯","💻","✈️","📱","🎓","🏠","🚗","👜","💪","🌴","💍","🎸","📸","🏋️","🐾"]
@@ -20,6 +20,8 @@ export default function Dashboard() {
   const [budgetForm, setBudgetForm] = useState({ category: "Food & Dining", limit: "" })
   const [goalForm, setGoalForm] = useState({ name: "", target: "", saved: "", emoji: "🎯" })
   const [addingTo, setAddingTo] = useState<string|null>(null)
+  const [recurring, setRecurring] = useState<RecurringExpense[]>([])
+  const [recurForm, setRecurForm] = useState({ amount: "", category: "Rent & Housing", description: "", dayOfMonth: "1" })
   const [search, setSearch] = useState("")
   const [addAmount, setAddAmount] = useState("")
 
@@ -34,6 +36,9 @@ export default function Dashboard() {
     setIncomes(getIncomes())
     setBudgets(getBudgets())
     setGoals(getGoals())
+    applyRecurringExpenses()
+    setRecurring(getRecurring())
+    setExpenses(getExpenses())
   }, [])
 
   const totalIncome = incomes.reduce((s, i) => s + i.amount, 0)
@@ -215,7 +220,7 @@ export default function Dashboard() {
         )}
 
         <div className="flex gap-2 mb-4 flex-wrap">
-          {(["transactions","charts","budget","goals","score"] as const).map(tab => (
+          {(["transactions","charts","budget","goals","score","recurring"] as const).map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all capitalize ${activeTab === tab ? "bg-[#2D8F85] text-white" : "bg-[#121A1C] text-[#8C9A9E] border border-[#1E2D30]"}`}>{tab}</button>
           ))}
         </div>
@@ -540,6 +545,67 @@ export default function Dashboard() {
           </div>
         )
       })()}
+
+      {activeTab === "recurring" && (
+        <div className="space-y-4">
+          <div className="bg-[#121A1C] border border-[#1E2D30] rounded-2xl p-5">
+            <h3 className="text-[#F5F7F7] text-sm font-medium mb-1">Add Recurring Expense</h3>
+            <p className="text-[#8C9A9E] text-xs mb-4">This will auto-add every month on the date you choose.</p>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <input type="text" placeholder="Description (e.g. Rent)" value={recurForm.description} onChange={e => setRecurForm(p => ({...p, description: e.target.value}))} className="bg-[#0B0F10] border border-[#1E2D30] text-[#F5F7F7] placeholder-[#8C9A9E] px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-[#2D8F85]" />
+              <input type="number" placeholder="Amount (₹)" value={recurForm.amount} onChange={e => setRecurForm(p => ({...p, amount: e.target.value}))} className="bg-[#0B0F10] border border-[#1E2D30] text-[#F5F7F7] placeholder-[#8C9A9E] px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-[#2D8F85]" />
+              <select value={recurForm.category} onChange={e => setRecurForm(p => ({...p, category: e.target.value}))} className="bg-[#0B0F10] border border-[#1E2D30] text-[#F5F7F7] px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-[#2D8F85]">
+                {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+              </select>
+              <select value={recurForm.dayOfMonth} onChange={e => setRecurForm(p => ({...p, dayOfMonth: e.target.value}))} className="bg-[#0B0F10] border border-[#1E2D30] text-[#F5F7F7] px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-[#2D8F85]">
+                {Array.from({length: 28}, (_, i) => i+1).map(d => <option key={d} value={d}>{d}{d===1?"st":d===2?"nd":d===3?"rd":"th"} of every month</option>)}
+              </select>
+            </div>
+            <button onClick={() => {
+              if (!recurForm.amount || !recurForm.description) return
+              const newItem: RecurringExpense = { id: Date.now().toString(), amount: parseFloat(recurForm.amount), category: recurForm.category, description: recurForm.description, dayOfMonth: parseInt(recurForm.dayOfMonth) }
+              const newList = [...recurring, newItem]
+              saveRecurring(newList)
+              setRecurring(newList)
+              setRecurForm({ amount: "", category: "Rent & Housing", description: "", dayOfMonth: "1" })
+            }} className="bg-[#2D8F85] hover:bg-[#39A596] text-white px-4 py-2 rounded-xl text-sm font-medium transition-all">Add Recurring</button>
+          </div>
+
+          {recurring.length === 0 ? (
+            <div className="bg-[#121A1C] rounded-2xl border border-[#1E2D30] px-5 py-10 text-center">
+              <p className="text-[#8C9A9E] text-sm">No recurring expenses yet.</p>
+              <p className="text-[#8C9A9E] text-xs mt-1">Add rent, EMI, subscriptions above.</p>
+            </div>
+          ) : (
+            <div className="bg-[#121A1C] rounded-2xl border border-[#1E2D30] overflow-hidden">
+              <div className="px-5 py-4 border-b border-[#1E2D30]">
+                <h3 className="text-[#F5F7F7] text-sm font-medium">Monthly Recurring</h3>
+              </div>
+              <div className="divide-y divide-[#1E2D30]">
+                {recurring.map(r => (
+                  <div key={r.id} className="px-5 py-3.5 flex items-center justify-between">
+                    <div>
+                      <p className="text-[#F5F7F7] text-sm">{r.description}</p>
+                      <p className="text-[#8C9A9E] text-xs">{r.category} · Every {r.dayOfMonth}{r.dayOfMonth===1?"st":r.dayOfMonth===2?"nd":r.dayOfMonth===3?"rd":"th"}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <p className="text-red-400 text-sm font-medium">-₹{r.amount.toLocaleString("en-IN")}</p>
+                      <button onClick={() => {
+                        const newList = recurring.filter(x => x.id !== r.id)
+                        saveRecurring(newList)
+                        setRecurring(newList)
+                      }} className="text-[#8C9A9E] hover:text-red-400 transition-colors"><Trash2 size={14} /></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="px-5 py-3 border-t border-[#1E2D30]">
+                <p className="text-[#8C9A9E] text-xs">Total recurring: ₹{recurring.reduce((s,r) => s+r.amount, 0).toLocaleString("en-IN")}/month</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       </div>
     </main>

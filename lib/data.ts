@@ -170,3 +170,39 @@ export function loadDemoData() {
 export function clearDemoData() {
   localStorage.clear()
 }
+
+export type RecurringExpense = {
+  id: string
+  amount: number
+  category: string
+  description: string
+  dayOfMonth: number
+}
+
+export function getRecurring(): RecurringExpense[] {
+  if (typeof window === "undefined") return []
+  const data = localStorage.getItem("finwise_recurring")
+  return data ? JSON.parse(data) : []
+}
+
+export function saveRecurring(items: RecurringExpense[]) {
+  localStorage.setItem("finwise_recurring", JSON.stringify(items))
+}
+
+export function applyRecurringExpenses() {
+  const recurring = getRecurring()
+  if (recurring.length === 0) return
+  const existing = getExpenses()
+  const now = new Date()
+  const monthStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`
+  
+  recurring.forEach(r => {
+    const dateStr = `${monthStr}-${String(r.dayOfMonth).padStart(2,"0")}`
+    const alreadyAdded = existing.some(e => e.description === r.description && e.date === dateStr)
+    if (!alreadyAdded && now.getDate() >= r.dayOfMonth) {
+      const newExp = { id: `rec-${r.id}-${monthStr}`, amount: r.amount, category: r.category, description: r.description, date: dateStr }
+      existing.unshift(newExp)
+    }
+  })
+  saveExpenses(existing)
+}
