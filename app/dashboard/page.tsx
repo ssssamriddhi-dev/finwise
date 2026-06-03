@@ -1,19 +1,26 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { Plus, Trash2, TrendingUp, TrendingDown } from "lucide-react"
+import { Plus, Trash2, TrendingUp, TrendingDown, AlertTriangle, Target } from "lucide-react"
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis } from "recharts"
-import { getExpenses, getIncomes, addExpense, addIncome, deleteExpense, deleteIncome, CATEGORIES, type Expense, type Income } from "@/lib/data"
+import { getExpenses, getIncomes, addExpense, addIncome, deleteExpense, deleteIncome, getBudgets, saveBudgets, getGoals, saveGoals, CATEGORIES, type Expense, type Income, type Budget, type Goal } from "@/lib/data"
 
 const COLORS = ["#2D8F85","#39A596","#4DB6AC","#80CBC4","#B2DFDB","#E0F2F1","#1B6B62","#0D4A43","#26A69A","#00897B"]
+const EMOJIS = ["🎯","💻","✈️","📱","🎓","🏠","🚗","👜","💪","🌴","💍","🎸","📸","🏋️","🐾"]
 
 export default function Dashboard() {
   const [name, setName] = useState("")
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [incomes, setIncomes] = useState<Income[]>([])
+  const [budgets, setBudgets] = useState<Budget[]>([])
+  const [goals, setGoals] = useState<Goal[]>([])
   const [showAddExpense, setShowAddExpense] = useState(false)
   const [showAddIncome, setShowAddIncome] = useState(false)
-  const [activeTab, setActiveTab] = useState<"transactions" | "charts">("transactions")
+  const [activeTab, setActiveTab] = useState<"transactions"|"charts"|"budget"|"goals">("transactions")
+  const [budgetForm, setBudgetForm] = useState({ category: "Food & Dining", limit: "" })
+  const [goalForm, setGoalForm] = useState({ name: "", target: "", saved: "", emoji: "🎯" })
+  const [addingTo, setAddingTo] = useState<string|null>(null)
+  const [addAmount, setAddAmount] = useState("")
 
   const [expForm, setExpForm] = useState({ amount: "", category: "Food & Dining", description: "", date: new Date().toISOString().split("T")[0] })
   const [incForm, setIncForm] = useState({ amount: "", source: "", date: new Date().toISOString().split("T")[0] })
@@ -24,6 +31,8 @@ export default function Dashboard() {
     setName(saved)
     setExpenses(getExpenses())
     setIncomes(getIncomes())
+    setBudgets(getBudgets())
+    setGoals(getGoals())
   }, [])
 
   const totalIncome = incomes.reduce((s, i) => s + i.amount, 0)
@@ -32,8 +41,7 @@ export default function Dashboard() {
   const savingsRate = totalIncome > 0 ? Math.round((savings / totalIncome) * 100) : 0
 
   const categoryData = CATEGORIES.map(cat => ({
-    name: cat,
-    value: expenses.filter(e => e.category === cat).reduce((s, e) => s + e.amount, 0)
+    name: cat, value: expenses.filter(e => e.category === cat).reduce((s, e) => s + e.amount, 0)
   })).filter(d => d.value > 0)
 
   const incomeVsExpense = [
@@ -41,6 +49,8 @@ export default function Dashboard() {
     { name: "Expenses", value: totalExpenses },
     { name: "Savings", value: Math.max(savings, 0) },
   ]
+
+  const getSpentForCategory = (cat: string) => expenses.filter(e => e.category === cat).reduce((s, e) => s + e.amount, 0)
 
   const handleAddExpense = () => {
     if (!expForm.amount) return
@@ -58,9 +68,66 @@ export default function Dashboard() {
     setShowAddIncome(false)
   }
 
+  const handleAddBudget = () => {
+    if (!budgetForm.limit) return
+    const existing = budgets.filter(b => b.category !== budgetForm.category)
+    const newBudgets = [...existing, { category: budgetForm.category, limit: parseFloat(budgetForm.limit) }]
+    saveBudgets(newBudgets)
+    setBudgets(newBudgets)
+    setBudgetForm({ category: "Food & Dining", limit: "" })
+  }
+
+  const handleDeleteBudget = (cat: string) => {
+    const newBudgets = budgets.filter(b => b.category !== cat)
+    saveBudgets(newBudgets)
+    setBudgets(newBudgets)
+  }
+
+  const handleAddGoal = () => {
+    if (!goalForm.name || !goalForm.target) return
+    const newGoal: Goal = { id: Date.now().toString(), name: goalForm.name, target: parseFloat(goalForm.target), saved: parseFloat(goalForm.saved) || 0, emoji: goalForm.emoji }
+    const newGoals = [...goals, newGoal]
+    saveGoals(newGoals)
+    setGoals(newGoals)
+    setGoalForm({ name: "", target: "", saved: "", emoji: "🎯" })
+  }
+
+  const handleAddToGoal = (id: string) => {
+    if (!addAmount) return
+    const newGoals = goals.map(g => g.id === id ? {...g, saved: Math.min(g.saved + parseFloat(addAmount), g.target)} : g)
+    saveGoals(newGoals)
+    setGoals(newGoals)
+    setAddingTo(null)
+    setAddAmount("")
+  }
+
+  const handleDeleteGoal = (id: string) => {
+    const newGoals = goals.filter(g => g.id !== id)
+    saveGoals(newGoals)
+    setGoals(newGoals)
+  }
+
   const handleDeleteExpense = (id: string) => { deleteExpense(id); setExpenses(prev => prev.filter(e => e.id !== id)) }
   const handleDeleteIncome = (id: string) => { deleteIncome(id); setIncomes(prev => prev.filter(i => i.id !== id)) }
   const fmt = (n: number) => "₹" + n.toLocaleString("en-IN")
+
+  const getAlertColor = (spent: number, limit: number) => {
+    const pct = spent / limit
+    if (pct >= 1) return "text-red-400"
+    if (pct >= 0.9) return "text-orange-400"
+    if (pct >= 0.7) return "text-yellow-400"
+    return "text-[#2D8F85]"
+  }
+
+  const getBarColor = (spent: number, limit: number) => {
+    const pct = spent / limit
+    if (pct >= 1) return "bg-red-400"
+    if (pct >= 0.9) return "bg-orange-400"
+    if (pct >= 0.7) return "bg-yellow-400"
+    return "bg-[#2D8F85]"
+  }
+
+  const overBudgetCount = budgets.filter(b => getSpentForCategory(b.category) >= b.limit).length
 
   return (
     <main className="min-h-screen bg-[#0B0F10] px-4 py-8">
@@ -73,6 +140,13 @@ export default function Dashboard() {
           </div>
           <button onClick={() => { localStorage.clear(); window.location.href = "/" }} className="text-[#8C9A9E] text-xs hover:text-[#F5F7F7] transition-colors">Sign out</button>
         </div>
+
+        {overBudgetCount > 0 && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-2xl px-5 py-3 mb-6 flex items-center gap-3">
+            <AlertTriangle size={16} className="text-red-400" />
+            <p className="text-red-400 text-sm">Budget exceeded in <strong>{overBudgetCount}</strong> {overBudgetCount === 1 ? "category" : "categories"}!</p>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           <div className="bg-[#121A1C] rounded-2xl p-4 border border-[#1E2D30]">
@@ -135,9 +209,10 @@ export default function Dashboard() {
           </div>
         )}
 
-        <div className="flex gap-2 mb-4">
-          <button onClick={() => setActiveTab("transactions")} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === "transactions" ? "bg-[#2D8F85] text-white" : "bg-[#121A1C] text-[#8C9A9E] border border-[#1E2D30]"}`}>Transactions</button>
-          <button onClick={() => setActiveTab("charts")} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === "charts" ? "bg-[#2D8F85] text-white" : "bg-[#121A1C] text-[#8C9A9E] border border-[#1E2D30]"}`}>Charts</button>
+        <div className="flex gap-2 mb-4 flex-wrap">
+          {(["transactions","charts","budget","goals"] as const).map(tab => (
+            <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all capitalize ${activeTab === tab ? "bg-[#2D8F85] text-white" : "bg-[#121A1C] text-[#8C9A9E] border border-[#1E2D30]"}`}>{tab}</button>
+          ))}
         </div>
 
         {activeTab === "transactions" && (
@@ -148,7 +223,6 @@ export default function Dashboard() {
             {expenses.length === 0 && incomes.length === 0 ? (
               <div className="px-5 py-10 text-center">
                 <p className="text-[#8C9A9E] text-sm">No transactions yet.</p>
-                <p className="text-[#8C9A9E] text-xs mt-1">Add your first income or expense above.</p>
               </div>
             ) : (
               <div className="divide-y divide-[#1E2D30]">
@@ -185,7 +259,6 @@ export default function Dashboard() {
             {categoryData.length === 0 ? (
               <div className="bg-[#121A1C] rounded-2xl border border-[#1E2D30] px-5 py-10 text-center">
                 <p className="text-[#8C9A9E] text-sm">No expense data yet.</p>
-                <p className="text-[#8C9A9E] text-xs mt-1">Add some expenses to see your charts.</p>
               </div>
             ) : (
               <>
@@ -200,7 +273,6 @@ export default function Dashboard() {
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
-
                 <div className="bg-[#121A1C] rounded-2xl border border-[#1E2D30] p-5">
                   <h3 className="text-[#F5F7F7] text-sm font-medium mb-4">Income vs Expenses vs Savings</h3>
                   <ResponsiveContainer width="100%" height={220}>
@@ -209,12 +281,131 @@ export default function Dashboard() {
                       <YAxis hide />
                       <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ background: "#121A1C", border: "1px solid #1E2D30", borderRadius: "12px", color: "#F5F7F7" }} />
                       <Bar dataKey="value" radius={[8,8,0,0]}>
-                        {incomeVsExpense.map((entry, i) => <Cell key={i} fill={i === 0 ? "#2D8F85" : i === 1 ? "#ef4444" : "#39A596"} />)}
+                        {incomeVsExpense.map((_, i) => <Cell key={i} fill={i === 0 ? "#2D8F85" : i === 1 ? "#ef4444" : "#39A596"} />)}
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               </>
+            )}
+          </div>
+        )}
+
+        {activeTab === "budget" && (
+          <div className="space-y-4">
+            <div className="bg-[#121A1C] border border-[#1E2D30] rounded-2xl p-5">
+              <h3 className="text-[#F5F7F7] text-sm font-medium mb-4">Set Budget Limit</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                <select value={budgetForm.category} onChange={e => setBudgetForm(p => ({...p, category: e.target.value}))} className="bg-[#0B0F10] border border-[#1E2D30] text-[#F5F7F7] px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-[#2D8F85]">
+                  {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                </select>
+                <input type="number" placeholder="Monthly limit (₹)" value={budgetForm.limit} onChange={e => setBudgetForm(p => ({...p, limit: e.target.value}))} className="bg-[#0B0F10] border border-[#1E2D30] text-[#F5F7F7] placeholder-[#8C9A9E] px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-[#2D8F85]" />
+              </div>
+              <button onClick={handleAddBudget} className="bg-[#2D8F85] hover:bg-[#39A596] text-white px-4 py-2 rounded-xl text-sm font-medium transition-all">Save Budget</button>
+            </div>
+            {budgets.length === 0 ? (
+              <div className="bg-[#121A1C] rounded-2xl border border-[#1E2D30] px-5 py-10 text-center">
+                <p className="text-[#8C9A9E] text-sm">No budgets set yet.</p>
+              </div>
+            ) : (
+              <div className="bg-[#121A1C] rounded-2xl border border-[#1E2D30] overflow-hidden">
+                <div className="px-5 py-4 border-b border-[#1E2D30]">
+                  <h3 className="text-[#F5F7F7] text-sm font-medium">Budget Tracker</h3>
+                </div>
+                <div className="divide-y divide-[#1E2D30]">
+                  {budgets.map(b => {
+                    const spent = getSpentForCategory(b.category)
+                    const pct = Math.min(spent / b.limit, 1)
+                    const over = spent > b.limit
+                    return (
+                      <div key={b.category} className="px-5 py-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            {over && <AlertTriangle size={14} className="text-red-400" />}
+                            <p className="text-[#F5F7F7] text-sm">{b.category}</p>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <p className={`text-sm font-medium ${getAlertColor(spent, b.limit)}`}>{fmt(spent)} / {fmt(b.limit)}</p>
+                            <button onClick={() => handleDeleteBudget(b.category)} className="text-[#8C9A9E] hover:text-red-400 transition-colors"><Trash2 size={14} /></button>
+                          </div>
+                        </div>
+                        <div className="w-full bg-[#1E2D30] rounded-full h-1.5">
+                          <div className={`h-1.5 rounded-full transition-all ${getBarColor(spent, b.limit)}`} style={{ width: `${pct * 100}%` }} />
+                        </div>
+                        <p className="text-[#8C9A9E] text-xs mt-1">{over ? `Over by ${fmt(spent - b.limit)}` : `${fmt(b.limit - spent)} remaining`}</p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "goals" && (
+          <div className="space-y-4">
+            <div className="bg-[#121A1C] border border-[#1E2D30] rounded-2xl p-5">
+              <h3 className="text-[#F5F7F7] text-sm font-medium mb-4">New Savings Goal</h3>
+              <div className="mb-3">
+                <p className="text-[#8C9A9E] text-xs mb-2">Pick an emoji</p>
+                <div className="flex flex-wrap gap-2">
+                  {EMOJIS.map(e => (
+                    <button key={e} onClick={() => setGoalForm(p => ({...p, emoji: e}))} className={`w-9 h-9 rounded-xl text-lg transition-all ${goalForm.emoji === e ? "bg-[#2D8F85]/20 ring-1 ring-[#2D8F85]" : "bg-[#0B0F10]"}`}>{e}</button>
+                  ))}
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                <input type="text" placeholder="Goal name (e.g. New Laptop)" value={goalForm.name} onChange={e => setGoalForm(p => ({...p, name: e.target.value}))} className="bg-[#0B0F10] border border-[#1E2D30] text-[#F5F7F7] placeholder-[#8C9A9E] px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-[#2D8F85]" />
+                <input type="number" placeholder="Target amount (₹)" value={goalForm.target} onChange={e => setGoalForm(p => ({...p, target: e.target.value}))} className="bg-[#0B0F10] border border-[#1E2D30] text-[#F5F7F7] placeholder-[#8C9A9E] px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-[#2D8F85]" />
+                <input type="number" placeholder="Already saved (₹)" value={goalForm.saved} onChange={e => setGoalForm(p => ({...p, saved: e.target.value}))} className="bg-[#0B0F10] border border-[#1E2D30] text-[#F5F7F7] placeholder-[#8C9A9E] px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-[#2D8F85]" />
+              </div>
+              <button onClick={handleAddGoal} disabled={!goalForm.name || !goalForm.target} className="bg-[#2D8F85] hover:bg-[#39A596] disabled:opacity-40 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all">Create Goal</button>
+            </div>
+
+            {goals.length === 0 ? (
+              <div className="bg-[#121A1C] rounded-2xl border border-[#1E2D30] px-5 py-10 text-center">
+                <Target size={32} className="text-[#8C9A9E] mx-auto mb-3" />
+                <p className="text-[#8C9A9E] text-sm">No goals yet.</p>
+                <p className="text-[#8C9A9E] text-xs mt-1">Create your first savings goal above!</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {goals.map(g => {
+                  const pct = Math.min(g.saved / g.target, 1)
+                  const done = g.saved >= g.target
+                  return (
+                    <div key={g.id} className={`bg-[#121A1C] rounded-2xl border p-5 ${done ? "border-[#2D8F85]/50" : "border-[#1E2D30]"}`}>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{g.emoji}</span>
+                          <div>
+                            <p className="text-[#F5F7F7] text-sm font-medium">{g.name}</p>
+                            <p className="text-[#8C9A9E] text-xs">{fmt(g.saved)} of {fmt(g.target)}</p>
+                          </div>
+                        </div>
+                        <button onClick={() => handleDeleteGoal(g.id)} className="text-[#8C9A9E] hover:text-red-400 transition-colors"><Trash2 size={14} /></button>
+                      </div>
+                      <div className="w-full bg-[#1E2D30] rounded-full h-2 mb-2">
+                        <div className="h-2 rounded-full bg-[#2D8F85] transition-all" style={{ width: `${pct * 100}%` }} />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <p className="text-[#8C9A9E] text-xs">{done ? "🎉 Goal reached!" : `${Math.round(pct * 100)}% complete`}</p>
+                        {!done && (
+                          addingTo === g.id ? (
+                            <div className="flex items-center gap-2">
+                              <input type="number" placeholder="Amount" value={addAmount} onChange={e => setAddAmount(e.target.value)} className="bg-[#0B0F10] border border-[#1E2D30] text-[#F5F7F7] placeholder-[#8C9A9E] px-2 py-1 rounded-lg text-xs w-24 focus:outline-none focus:border-[#2D8F85]" />
+                              <button onClick={() => handleAddToGoal(g.id)} className="text-[#2D8F85] text-xs hover:text-[#39A596]">Add</button>
+                              <button onClick={() => setAddingTo(null)} className="text-[#8C9A9E] text-xs">Cancel</button>
+                            </div>
+                          ) : (
+                            <button onClick={() => setAddingTo(g.id)} className="text-[#2D8F85] text-xs hover:text-[#39A596] transition-colors">+ Add money</button>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
             )}
           </div>
         )}

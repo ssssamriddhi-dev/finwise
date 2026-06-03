@@ -86,3 +86,21 @@ export function getBudgets(): Budget[] {
 export function saveBudgets(budgets: Budget[]) {
   localStorage.setItem("finwise_budgets", JSON.stringify(budgets))
 }
+
+export type Goal = {
+  id: string
+  name: string
+  target: number
+  saved: number
+  emoji: string
+}
+
+export function getGoals(): Goal[] {
+  if (typeof window === "undefined") return []
+  const data = localStorage.getItem("finwise_goals")
+  return data ? JSON.parse(data) : []
+}
+
+export function saveGoals(goals: Goal[]) {
+  localStorage.setItem("finwise_goals", JSON.stringify(goals))
+}
