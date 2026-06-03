@@ -139,7 +139,10 @@ export default function Dashboard() {
             <p className="text-[#2D8F85] text-xs font-medium tracking-widest uppercase mb-1">Finwise</p>
             <h1 className="text-[#F5F7F7] text-2xl font-semibold">Hey, {name} 👋</h1>
           </div>
-          <button onClick={() => { localStorage.clear(); window.location.href = "/" }} className="text-[#8C9A9E] text-xs hover:text-[#F5F7F7] transition-colors">Sign out</button>
+          <div className="flex items-center gap-4">
+            <button onClick={() => window.location.href = "/news"} className="text-[#8C9A9E] text-xs hover:text-[#F5F7F7] transition-colors">📰 News</button>
+            <button onClick={() => { localStorage.clear(); window.location.href = "/" }} className="text-[#8C9A9E] text-xs hover:text-[#F5F7F7] transition-colors">Sign out</button>
+          </div>
         </div>
 
         {overBudgetCount > 0 && (
