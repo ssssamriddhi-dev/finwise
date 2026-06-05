@@ -54,6 +54,13 @@ export default function Home() {
   if (savedName && !submitted) {
     return (
       <main className="min-h-screen bg-[#0B0F10] flex items-center justify-center px-4">
+      {rocket !== "idle" && (
+        <div style={{ position: 'fixed', top: '42%', left: 0, zIndex: 100, pointerEvents: 'none', width: 180, height: 108, borderRadius: 14, background: 'linear-gradient(135deg, #0c3330 0%, #2D8F85 70%, #37ADA2 100%)', boxShadow: '0 0 40px rgba(45,143,133,0.8)', transform: rocket === "ready" ? 'translateX(-220px) translateY(-50%) rotate(-10deg)' : 'translateX(calc(100vw + 220px)) translateY(-50%) rotate(-5deg)', transition: rocket === "shooting" ? 'transform 0.28s cubic-bezier(0.55, 0, 1, 0.45)' : 'none', padding: '14px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', right: '100%', top: '50%', width: 100, height: 2, background: 'linear-gradient(to left, rgba(55,173,162,0.7), transparent)' }} />
+          <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: 11, fontWeight: 700, letterSpacing: 2 }}>FINWISE</span>
+          <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: 12, fontWeight: 800, fontStyle: 'italic' }}>VISA</span>
+        </div>
+      )}
         <div className="text-center">
           <p className="text-[#2D8F85] text-sm font-medium tracking-widest uppercase mb-3">Welcome back</p>
           <h1 className="text-[#F5F7F7] text-4xl font-semibold mb-8">Hey, {savedName} 👋</h1>
