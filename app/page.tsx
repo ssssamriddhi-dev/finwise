@@ -49,6 +49,7 @@ export default function Home() {
     return () => clearInterval(interval)
   }, [])
 
+
   const savedName = typeof window !== "undefined" ? localStorage.getItem("finwise_name") : null
 
   if (savedName && !submitted) {
@@ -95,6 +96,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#0B0F10] flex flex-col items-center justify-center px-4 overflow-hidden relative">
+      {piggy!=="done"&&(<div style={{position:"fixed",inset:0,zIndex:50,background:"#0B0F10",display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",opacity:piggy==="zoom"?0:1,transition:piggy==="zoom"?"opacity 0.5s ease 0.4s":"none"}}><div style={{transform:piggy==="zoom"?"scale(18)":"scale(1)",transition:piggy==="zoom"?"transform 0.9s cubic-bezier(0.55,0,1,0.45)":"none",transformOrigin:"39% 31%"}}><svg width="300" height="220" viewBox="0 0 300 220"><path d="M32 120 Q16 108 20 94 Q24 80 36 86 Q48 92 42 106 Q36 120 44 130" fill="none" stroke="#EE8EA0" strokeWidth="7" strokeLinecap="round"/><ellipse cx="118" cy="130" rx="88" ry="68" fill="#F4A5B5"/><rect x="48" y="185" width="22" height="28" rx="11" fill="#EE8EA0"/><rect x="84" y="190" width="22" height="28" rx="11" fill="#EE8EA0"/><rect x="136" y="190" width="22" height="28" rx="11" fill="#EE8EA0"/><rect x="170" y="185" width="22" height="28" rx="11" fill="#EE8EA0"/><circle cx="215" cy="115" r="50" fill="#F4A5B5"/><ellipse cx="200" cy="72" rx="16" ry="22" fill="#F4A5B5" transform="rotate(-15 200 72)"/><ellipse cx="200" cy="72" rx="9" ry="14" fill="#EE8EA0" transform="rotate(-15 200 72)"/><circle cx="225" cy="104" r="7" fill="#2D1810"/><circle cx="227" cy="102" r="2" fill="white"/><ellipse cx="250" cy="128" rx="22" ry="16" fill="#EE8EA0"/><circle cx="243" cy="128" r="5" fill="#C06070"/><circle cx="257" cy="128" r="5" fill="#C06070"/><ellipse cx="88" cy="108" rx="16" ry="9" fill="rgba(255,255,255,0.14)" transform="rotate(-30 88 108)"/><rect x="88" y="64" width="52" height="11" rx="5.5" fill="#0B0F10"/></svg></div></div>)}
       <div style={{ position: 'fixed', top: '20%', left: '50%', transform: 'translateX(-50%)', width: 480, height: 480, borderRadius: '50%', background: 'radial-gradient(circle, rgba(45,143,133,0.07) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ opacity: quoteVisible ? 1 : 0, transform: quoteVisible ? 'translateY(0)' : 'translateY(8px)', transition: 'opacity 0.4s ease, transform 0.4s ease', textAlign: 'center', marginBottom: 32, maxWidth: 300, position: 'relative', zIndex: 1 }}>
         <p style={{ color: '#8C9A9E', fontSize: 11, fontStyle: 'italic', lineHeight: 1.7, margin: 0 }}>"{quotes[quoteIndex].text}"</p>

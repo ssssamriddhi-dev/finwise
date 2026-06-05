@@ -52,6 +52,7 @@ function OldMan() {
   )
 }
 
+
 export default function Onboarding() {
   const [step, setStep] = useState(1)
   const [data, setData] = useState({ currency: "\u20b9 INR", profession: "", depositDate: "1st", income: "" })
@@ -66,6 +67,8 @@ export default function Onboarding() {
   }
   return (
     <main className="min-h-screen bg-[#0B0F10] flex items-center justify-center px-4 py-10 relative overflow-hidden">
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}><div style={{ position: 'absolute', top: '6%', left: '4%', width: 170, height: 102, borderRadius: 14, background: 'linear-gradient(135deg, #0c3330 0%, #37ADA2 100%)', transform: 'rotate(-12deg)', opacity: 0.22 }} /><div style={{ position: 'absolute', top: '10%', right: '5%', width: 170, height: 102, borderRadius: 14, background: 'linear-gradient(135deg, #2a1e04 0%, #DEB84A 100%)', transform: 'rotate(14deg)', opacity: 0.20 }} /><div style={{ position: 'absolute', top: '38%', left: '2%', width: 170, height: 102, borderRadius: 14, background: 'linear-gradient(135deg, #0a0d14 0%, #1d2840 100%)', transform: 'rotate(-18deg)', opacity: 0.22 }} /><div style={{ position: 'absolute', top: '40%', right: '3%', width: 170, height: 102, borderRadius: 14, background: 'linear-gradient(135deg, #0c3330 0%, #2D8F85 100%)', transform: 'rotate(16deg)', opacity: 0.20 }} /><div style={{ position: 'absolute', bottom: '10%', left: '5%', width: 170, height: 102, borderRadius: 14, background: 'linear-gradient(135deg, #2a1e04 0%, #C49A25 100%)', transform: 'rotate(-10deg)', opacity: 0.20 }} /><div style={{ position: 'absolute', bottom: '8%', right: '4%', width: 170, height: 102, borderRadius: 14, background: 'linear-gradient(135deg, #0a0d14 0%, #1d2840 100%)', transform: 'rotate(12deg)', opacity: 0.22 }} /></div>
+      <OldMan />
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
         <div style={{ position: 'absolute', top: '6%', left: '4%', width: 170, height: 102, borderRadius: 14, background: 'linear-gradient(135deg, #0c3330 0%, #37ADA2 100%)', transform: 'rotate(-12deg)', opacity: 0.22 }} />
         <div style={{ position: 'absolute', top: '10%', right: '5%', width: 170, height: 102, borderRadius: 14, background: 'linear-gradient(135deg, #2a1e04 0%, #DEB84A 100%)', transform: 'rotate(14deg)', opacity: 0.20 }} />
