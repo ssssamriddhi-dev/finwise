@@ -147,7 +147,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-4">
             <button onClick={() => window.location.href = "/news"} className="text-[#8C9A9E] text-xs hover:text-[#F5F7F7] transition-colors">📰 News</button>
             <button onClick={() => window.location.href = "/report"} className="text-[#8C9A9E] text-xs hover:text-[#F5F7F7] transition-colors">📊 Report</button>
-            <button onClick={() => { localStorage.clear(); window.location.href = "/" }} className="text-[#8C9A9E] text-xs hover:text-[#F5F7F7] transition-colors">Sign out</button>
+            <button onClick={() => { localStorage.removeItem("finwise_expenses"); localStorage.removeItem("finwise_incomes"); localStorage.removeItem("finwise_budgets"); localStorage.removeItem("finwise_goals"); localStorage.removeItem("finwise_recurring"); localStorage.removeItem("finwise_profile"); localStorage.removeItem("finwise_name"); window.location.href = "/" }} className="text-[#8C9A9E] text-xs hover:text-[#F5F7F7] transition-colors">Sign out</button>
           </div>
         </div>
 
