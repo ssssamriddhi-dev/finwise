@@ -68,6 +68,12 @@ export default function Home() {
     if (name.trim().length < 2) return
     setAnimating(true)
     setTimeout(() => {
+      localStorage.removeItem("finwise_expenses")
+      localStorage.removeItem("finwise_incomes")
+      localStorage.removeItem("finwise_budgets")
+      localStorage.removeItem("finwise_goals")
+      localStorage.removeItem("finwise_recurring")
+      localStorage.removeItem("finwise_profile")
       localStorage.setItem("finwise_name", name.trim())
       window.location.href = "/onboarding"
     }, 750)
