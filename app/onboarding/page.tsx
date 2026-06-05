@@ -63,6 +63,12 @@ export default function Onboarding() {
       const income = parseFloat(data.income)
       localStorage.setItem("finwise_budgets", JSON.stringify((TEMPLATES[data.profession]||TEMPLATES["Other"]).map(t => ({ category: t.category, limit: Math.round((t.percent/100)*income) }))))
     }
+    if (data.income) {
+      const today = new Date().toISOString().split("T")[0]
+      const incomeEntry = { id: Date.now().toString(), amount: parseFloat(data.income), source: "Monthly Income", date: today }
+      const existing = JSON.parse(localStorage.getItem("finwise_incomes") || "[]")
+      localStorage.setItem("finwise_incomes", JSON.stringify([incomeEntry, ...existing]))
+    }
     window.location.href = "/dashboard"
   }
   return (
