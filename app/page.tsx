@@ -56,7 +56,7 @@ export default function Home() {
       <main className="min-h-screen bg-[#0B0F10] flex items-center justify-center px-4">
         <div className="text-center">
           <p className="text-[#2D8F85] text-sm font-medium tracking-widest uppercase mb-3">Welcome back</p>
-          <h1 className="text-[#F5F7F7] text-4xl font-semibold mb-8">Hey, {savedName} \U0001f44b</h1>
+          <h1 className="text-[#F5F7F7] text-4xl font-semibold mb-8">Hey, {savedName} 👋</h1>
           <button onClick={() => window.location.href = "/dashboard"} className="bg-[#2D8F85] hover:bg-[#39A596] text-white px-8 py-3 rounded-xl text-sm font-medium transition-all duration-200 w-full mb-3">Go to Dashboard</button>
           <p className="text-[#8C9A9E] text-xs mt-4 cursor-pointer hover:text-[#F5F7F7] transition-colors" onClick={() => { localStorage.removeItem("finwise_name"); window.location.reload(); }}>Not you? Change name</p>
         </div>
