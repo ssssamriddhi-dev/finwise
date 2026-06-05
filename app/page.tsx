@@ -83,7 +83,7 @@ export default function Home() {
       <div style={{ position: 'fixed', top: '20%', left: '50%', transform: 'translateX(-50%)', width: 480, height: 480, borderRadius: '50%', background: 'radial-gradient(circle, rgba(45,143,133,0.07) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ opacity: quoteVisible ? 1 : 0, transform: quoteVisible ? 'translateY(0)' : 'translateY(8px)', transition: 'opacity 0.4s ease, transform 0.4s ease', textAlign: 'center', marginBottom: 32, maxWidth: 300, position: 'relative', zIndex: 1 }}>
         <p style={{ color: '#8C9A9E', fontSize: 11, fontStyle: 'italic', lineHeight: 1.7, margin: 0 }}>"{quotes[quoteIndex].text}"</p>
-        <p style={{ color: '#2D8F85', fontSize: 11, marginTop: 6, fontWeight: 500 }}>\u2014 {quotes[quoteIndex].author}</p>
+        <p style={{ color: '#2D8F85', fontSize: 11, marginTop: 6, fontWeight: 500 }}>— {quotes[quoteIndex].author}</p>
       </div>
       <div style={{ position: 'relative', width: 280, height: 168, marginBottom: 40, zIndex: 1 }}>
         <div style={{ position: 'absolute', inset: 0, borderRadius: 16, background: 'linear-gradient(135deg, #2a1e04 0%, #6B4F12 35%, #C49A25 75%, #DEB84A 100%)', transform: animating ? 'translate(130%, 90%) rotate(40deg) scale(0.75)' : 'translate(20px, 16px) rotate(7deg)', transition: 'transform 0.55s cubic-bezier(0.7, 0, 1, 0.45), opacity 0.55s ease', opacity: animating ? 0 : 1, zIndex: 1, boxShadow: '0 16px 48px rgba(0,0,0,0.5)', padding: '18px 20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
@@ -93,7 +93,7 @@ export default function Home() {
             <span style={{ color: 'rgba(255,200,80,0.6)', fontSize: 9, letterSpacing: 2 }}>SAVINGS</span>
           </div>
           <div>
-            <p style={{ color: 'rgba(255,210,100,0.45)', fontSize: 12, letterSpacing: 3, marginBottom: 8, fontFamily: 'monospace' }}>6011 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 5634</p>
+            <p style={{ color: 'rgba(255,210,100,0.45)', fontSize: 12, letterSpacing: 3, marginBottom: 8, fontFamily: 'monospace' }}>6011 •••• •••• 5634</p>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ color: 'rgba(255,210,100,0.6)', fontSize: 10, letterSpacing: 1 }}>GOLD MEMBER</span>
               <span style={{ color: 'rgba(255,210,100,0.8)', fontSize: 11, fontWeight: 700 }}>RuPay</span>
@@ -107,7 +107,7 @@ export default function Home() {
             <span style={{ color: 'rgba(180,185,255,0.4)', fontSize: 9, letterSpacing: 2 }}>CREDIT</span>
           </div>
           <div>
-            <p style={{ color: 'rgba(180,185,255,0.3)', fontSize: 12, letterSpacing: 3, marginBottom: 8, fontFamily: 'monospace' }}>5423 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 9021</p>
+            <p style={{ color: 'rgba(180,185,255,0.3)', fontSize: 12, letterSpacing: 3, marginBottom: 8, fontFamily: 'monospace' }}>5423 •••• •••• 9021</p>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ color: 'rgba(180,185,255,0.5)', fontSize: 10, letterSpacing: 1 }}>ELITE</span>
               <MastercardLogo />
@@ -122,7 +122,7 @@ export default function Home() {
             <Chip />
           </div>
           <div>
-            <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 12, letterSpacing: 3, marginBottom: 10, fontFamily: 'monospace' }}>4821 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 3847</p>
+            <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 12, letterSpacing: 3, marginBottom: 10, fontFamily: 'monospace' }}>4821 •••• •••• 3847</p>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 8, letterSpacing: 1.5, textTransform: 'uppercase', margin: '0 0 2px' }}>Card Holder</p>
@@ -141,14 +141,14 @@ export default function Home() {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <input type="text" placeholder="Enter your name" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSubmit()} style={{ width: '100%', boxSizing: 'border-box', background: '#121A1C', border: '1px solid #1E2D30', color: '#F5F7F7', padding: '12px 16px', borderRadius: 12, fontSize: 14, outline: 'none' }} onFocus={(e) => (e.target.style.borderColor = '#2D8F85')} onBlur={(e) => (e.target.style.borderColor = '#1E2D30')} />
-          <button onClick={handleSubmit} disabled={name.trim().length < 2} style={{ width: '100%', background: name.trim().length < 2 ? '#1A2426' : '#2D8F85', color: name.trim().length < 2 ? '#4A5A5E' : 'white', padding: '12px 0', borderRadius: 12, fontSize: 14, fontWeight: 500, cursor: name.trim().length < 2 ? 'not-allowed' : 'pointer', border: 'none', transition: 'background 0.2s' }}>Get Started \u2192</button>
+          <button onClick={handleSubmit} disabled={name.trim().length < 2} style={{ width: '100%', background: name.trim().length < 2 ? '#1A2426' : '#2D8F85', color: name.trim().length < 2 ? '#4A5A5E' : 'white', padding: '12px 0', borderRadius: 12, fontSize: 14, fontWeight: 500, cursor: name.trim().length < 2 ? 'not-allowed' : 'pointer', border: 'none', transition: 'background 0.2s' }}>Get Started →</button>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '2px 0' }}>
             <div style={{ flex: 1, height: 1, background: '#1E2D30' }} />
             <span style={{ color: '#8C9A9E', fontSize: 11 }}>or</span>
             <div style={{ flex: 1, height: 1, background: '#1E2D30' }} />
           </div>
-          <button onClick={handleDemo} style={{ width: '100%', background: '#121A1C', border: '1px solid #1E2D30', color: '#8C9A9E', padding: '12px 0', borderRadius: 12, fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>\u2728 Try Demo</button>
-          <p style={{ color: '#8C9A9E', fontSize: 11, textAlign: 'center', margin: 0 }}>See the app with sample data \u2014 no setup needed</p>
+          <button onClick={handleDemo} style={{ width: '100%', background: '#121A1C', border: '1px solid #1E2D30', color: '#8C9A9E', padding: '12px 0', borderRadius: 12, fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>✨ Try Demo</button>
+          <p style={{ color: '#8C9A9E', fontSize: 11, textAlign: 'center', margin: 0 }}>See the app with sample data — no setup needed</p>
         </div>
       </div>
     </main>
