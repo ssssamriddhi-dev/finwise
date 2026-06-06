@@ -47,8 +47,13 @@
 
 ## 📸 Screenshots
 
-> Add screenshots here after taking them from the live site.  
-> Tip: Load demo data first for the best visuals.
+| Welcome Screen | Onboarding |
+|---|---|
+| ![Welcome](public/screenshots/welcome.png) | ![Onboarding](public/screenshots/onboarding2.png) |
+
+| Dashboard | Financial News |
+|---|---|
+| ![Dashboard](public/screenshots/dashboard.png) | ![News](public/screenshots/news.png) |
 
 ---
 
